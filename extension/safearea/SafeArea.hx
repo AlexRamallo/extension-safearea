@@ -6,6 +6,10 @@ import cpp.Lib;
 import neko.Lib;
 #end
 
+#if android
+import lime.system.JNI;
+#end
+
 import openfl.display.Stage;
 import openfl.events.Event;
 import openfl.geom.Rectangle;
@@ -21,9 +25,19 @@ class SafeArea
 	public static var paddingRight(default, null):Float;
 	public static var safeArea(default, null):Rectangle;
 
-	public static function init()
+	/**
+		The parameter `disableAndroidLetterBox` can be set to false if you want the OS to add
+		a letter-box around the notch/cutout(s).
+	*/
+	public static function init(disableAndroidLetterbox:Bool = true)
 	{
 		stage = openfl.Lib.current.stage;
+
+		#if android
+		if(disableAndroidLetterbox){
+			safearea_disable_letterbox();
+		}
+		#end
 
 		update();
 
@@ -50,17 +64,39 @@ class SafeArea
 								 stage.stageHeight - paddingTop - paddingBottom);
 	}
 
-	inline static function get_safeAreaInsets():Insets
+	static function get_safeAreaInsets():Insets
 	{
 		#if ios
+
 		return safearea_get_safeAreaInsets();
-		#else
-		return { top: 0.0, bottom: 0.0, left: 0.0, right: 0.0 };
+
+		#elseif android
+		
+		var insets:Array<Float> = JNI.callMember(safearea_update, safearea_instance.get(), []);
+
+		if(insets != null){			
+			return {
+				top: insets[0],
+				bottom: insets[1],
+				left: insets[2],
+				right: insets[3]
+			};
+
+		}else{
+			trace('Error updating safe area!');
+		}
+
 		#end
+
+		return { top: 0.0, bottom: 0.0, left: 0.0, right: 0.0 };
 	}
 	
 	#if ios
 	static var safearea_get_safeAreaInsets = Lib.load("safearea", "safearea_get_safeAreaInsets", 0);
+	#elseif android
+	static var safearea_instance = JNI.createStaticField("org/haxe/extension/NotchAndroid", "inst", "Lorg/haxe/extension/NotchAndroid;");
+	static var safearea_update = JNI.createMemberMethod("org.haxe.extension.NotchAndroid", "updateSafeArea", "()[F");
+	static var safearea_disable_letterbox = JNI.createStaticMethod("org.haxe.extension.NotchAndroid", "disable_letterbox", "()V");
 	#end
 
 }
