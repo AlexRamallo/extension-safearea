@@ -25,19 +25,9 @@ class SafeArea
 	public static var paddingRight(default, null):Float;
 	public static var safeArea(default, null):Rectangle;
 
-	/**
-		The parameter `disableAndroidLetterBox` can be set to false if you want the OS to add
-		a letter-box around the notch/cutout(s).
-	*/
-	public static function init(disableAndroidLetterbox:Bool = true)
+	public static function init()
 	{
 		stage = openfl.Lib.current.stage;
-
-		#if android
-		if(disableAndroidLetterbox){
-			safearea_disable_letterbox();
-		}
-		#end
 
 		update();
 
@@ -96,7 +86,6 @@ class SafeArea
 	#elseif android
 	static var safearea_instance = JNI.createStaticField("org/haxe/extension/NotchAndroid", "inst", "Lorg/haxe/extension/NotchAndroid;");
 	static var safearea_update = JNI.createMemberMethod("org.haxe.extension.NotchAndroid", "updateSafeArea", "()[F");
-	static var safearea_disable_letterbox = JNI.createStaticMethod("org.haxe.extension.NotchAndroid", "disable_letterbox", "()V");
 	#end
 
 }

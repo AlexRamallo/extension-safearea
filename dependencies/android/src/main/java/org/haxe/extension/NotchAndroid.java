@@ -24,18 +24,11 @@ public class NotchAndroid extends Extension {
 
 	public void onCreate (Bundle savedInstanceState) {
 		insets = new float[4];
-	}
-
-	public static void disable_letterbox(){
+		
 		if (Build.VERSION.SDK_INT >= 28) {
-			mainActivity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					Window win = mainActivity.getWindow();
-					win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-					win.getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-				}
-			});
+			Window win = mainActivity.getWindow();
+			win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			win.getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
 		}
 	}
 
